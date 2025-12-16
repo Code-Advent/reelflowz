@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { supabase } from './supabaseClient';
-import { AuthScreen } from './components/AuthScreen.tsx';
-import { BottomNav } from './components/BottomNav';
-import { Home } from './pages/Home';
-import { Discover } from './pages/Discover';
-import { Upload } from './pages/Upload';
-import { Inbox } from './pages/Inbox';
-import { Profile } from './pages/Profile';
-import { VideoView } from './pages/VideoView';
-import { SqlSetup } from './pages/SqlSetup';
+
+// Correct imports for your folder structure
+import AuthScreen from './components/AuthScreen';
+import BottomNav from './components/BottomNav';
+import Home from './pages/Home';
+import Discover from './pages/Discover';
+import Upload from './pages/Upload';
+import Inbox from './pages/Inbox';
+import Profile from './pages/Profile';
+import VideoView from './pages/VideoView';
+import SqlSetup from './pages/SqlSetup';
 
 export default function App() {
   const [session, setSession] = useState<any>(null);
@@ -18,7 +20,7 @@ export default function App() {
 
   useEffect(() => {
     checkSession();
-    
+
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -31,36 +33,30 @@ export default function App() {
   const checkSession = async () => {
     try {
       setConnectionError(null);
-      
-      if (!navigator.onLine) {
-        throw new Error("You are offline.");
-      }
+
+      if (!navigator.onLine) throw new Error("You are offline.");
 
       const { data, error } = await supabase.auth.getSession();
-      
-      // If error (e.g., Failed to fetch due to Supabase being down or network glitch), 
-      // do NOT block the app. Assume user is logged out and let them try to log in via AuthScreen.
+
       if (error) {
         console.warn("Session check failed (non-critical):", error);
         setSession(null);
       } else {
         if (data.session) {
-            // Check if user is banned
-            const { data: profile } = await supabase.from('profiles').select('is_banned').eq('id', data.session.user.id).single();
-            if (profile?.is_banned) {
-                await supabase.auth.signOut();
-                setSession(null);
-                alert("Your account has been banned.");
-            } else {
-                setSession(data.session);
-            }
-        } else {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('is_banned')
+            .eq('id', data.session.user.id)
+            .single();
+          if (profile?.is_banned) {
+            await supabase.auth.signOut();
             setSession(null);
-        }
+            alert("Your account has been banned.");
+          } else setSession(data.session);
+        } else setSession(null);
       }
     } catch (err: any) {
       console.error("Session check critical failure:", err);
-      // Only block UI for critical environment errors (like being offline)
       setConnectionError(err.message || "Unknown connection error");
     } finally {
       setLoading(false);
@@ -68,37 +64,39 @@ export default function App() {
   };
 
   const handleRetry = () => {
-      setLoading(true);
-      setConnectionError(null);
-      setTimeout(() => {
-          checkSession();
-      }, 1000);
+    setLoading(true);
+    setConnectionError(null);
+    setTimeout(() => checkSession(), 1000);
   };
 
   if (loading) {
-     return <div className="h-screen w-full bg-black flex items-center justify-center">
-         <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-cyan-500"></div>
-     </div>;
+    return (
+      <div className="h-screen w-full bg-black flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-cyan-500"></div>
+      </div>
+    );
   }
 
   if (connectionError) {
-      return (
-          <div className="h-screen w-full bg-black flex flex-col items-center justify-center p-6 text-center">
-              <i className="fas fa-wifi text-4xl text-red-500 mb-4"></i>
-              <h2 className="text-xl font-bold mb-2">Connection Error</h2>
-              <p className="text-gray-400 mb-6 text-sm break-words max-w-xs">
-                  {connectionError}
-                  <br/>
-                  <span className="text-xs text-gray-500 mt-2 block">Please check your internet connection.</span>
-              </p>
-              <button 
-                onClick={handleRetry}
-                className="px-8 py-3 bg-gradient-to-r from-cyan-600 to-pink-600 rounded-full font-bold hover:opacity-90 transition-all shadow-lg shadow-pink-900/20"
-              >
-                Retry Connection
-              </button>
-          </div>
-      );
+    return (
+      <div className="h-screen w-full bg-black flex flex-col items-center justify-center p-6 text-center">
+        <i className="fas fa-wifi text-4xl text-red-500 mb-4"></i>
+        <h2 className="text-xl font-bold mb-2">Connection Error</h2>
+        <p className="text-gray-400 mb-6 text-sm break-words max-w-xs">
+          {connectionError}
+          <br />
+          <span className="text-xs text-gray-500 mt-2 block">
+            Please check your internet connection.
+          </span>
+        </p>
+        <button
+          onClick={handleRetry}
+          className="px-8 py-3 bg-gradient-to-r from-cyan-600 to-pink-600 rounded-full font-bold hover:opacity-90 transition-all shadow-lg shadow-pink-900/20"
+        >
+          Retry Connection
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -107,7 +105,7 @@ export default function App() {
         <div className="flex-1 overflow-hidden relative z-0">
           <Routes>
             <Route path="/sql-setup" element={<SqlSetup />} />
-            
+
             {session ? (
               <>
                 <Route path="/" element={<Home />} />
