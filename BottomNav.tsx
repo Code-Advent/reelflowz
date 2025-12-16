@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-export const BottomNav = () => {
+const BottomNav = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -57,3 +57,5 @@ export const BottomNav = () => {
     </div>
   );
 };
+
+export default BottomNav;
