@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { supabase } from './supabaseClient';
 
-// Components in the root folder
-import AuthScreen from './AuthScreen';
-import BottomNav from './BottomNav';
+// Components in components/ folder
+import AuthScreen from './components/AuthScreen';
+import BottomNav from './components/BottomNav';
 
 // Pages in pages/ folder
 import Home from './pages/Home';
@@ -127,5 +127,6 @@ export default function App() {
     </Router>
   );
 }
+
 
 
