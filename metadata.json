@@ -1,0 +1,8 @@
+{
+  "name": "Reelflow",
+  "description": "A vertical video social platform inspired by TikTok featuring full-screen viewing, profiles, and interactions.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
