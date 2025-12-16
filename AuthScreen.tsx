@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { Link } from 'react-router-dom';
 
-export const AuthScreen = () => {
+const AuthScreen = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -16,34 +16,25 @@ export const AuthScreen = () => {
 
     try {
       if (!navigator.onLine) {
-         throw new Error("You are offline. Please check your internet connection.");
+        throw new Error("You are offline. Please check your internet connection.");
       }
 
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
       } else {
-        // Sign up logic
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-        });
+        const { error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
-        
-        // Profile creation is now handled by the SQL Trigger 'handle_new_user'
       }
     } catch (err: any) {
       console.error("Auth Error:", err);
       let msg = err.message || "An unexpected error occurred.";
       if (msg.includes("Failed to fetch") || msg.includes("Load failed")) {
-          msg = "Connection error. Please check your internet connection and try again.";
+        msg = "Connection error. Please check your internet connection and try again.";
       } else if (msg.includes("Invalid login credentials")) {
-          msg = "Incorrect email or password. Please try again.";
+        msg = "Incorrect email or password. Please try again.";
       } else if (msg.includes("User already registered")) {
-          msg = "This email is already registered. Please log in.";
+        msg = "This email is already registered. Please log in.";
       }
       setError(msg);
     } finally {
@@ -53,21 +44,19 @@ export const AuthScreen = () => {
 
   return (
     <div className="h-screen w-full flex flex-col justify-center items-center bg-black p-6 relative">
-      
       {/* App Icon */}
       <div className="mb-8 flex flex-col items-center">
-          <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-blue-600 to-pink-600 flex items-center justify-center shadow-lg shadow-pink-500/20 mb-4">
-              {/* Play Button Icon SVG */}
-              <svg width="50" height="50" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
-                <path d="M8 5V19L19 12L8 5Z" />
-              </svg>
-          </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-pink-500 text-transparent bg-clip-text">
-            Reelflow
-          </h1>
-          <p className="text-gray-500 text-xs mt-2">The future of streaming</p>
+        <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-blue-600 to-pink-600 flex items-center justify-center shadow-lg shadow-pink-500/20 mb-4">
+          <svg width="50" height="50" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 5V19L19 12L8 5Z" />
+          </svg>
+        </div>
+        <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-pink-500 text-transparent bg-clip-text">
+          Reelflow
+        </h1>
+        <p className="text-gray-500 text-xs mt-2">The future of streaming</p>
       </div>
-      
+
       <form onSubmit={handleAuth} className="w-full max-w-sm space-y-4">
         <input
           type="email"
@@ -85,8 +74,10 @@ export const AuthScreen = () => {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        
-        {error && <p className="text-red-500 text-sm text-center bg-red-900/20 p-2 rounded border border-red-900">{error}</p>}
+
+        {error && (
+          <p className="text-red-500 text-sm text-center bg-red-900/20 p-2 rounded border border-red-900">{error}</p>
+        )}
 
         <button
           type="submit"
@@ -97,7 +88,7 @@ export const AuthScreen = () => {
             <span className="flex items-center justify-center gap-2">
               <i className="fas fa-spinner fa-spin"></i> Processing...
             </span>
-          ) : (isLogin ? 'Log In' : 'Sign Up')}
+          ) : isLogin ? 'Log In' : 'Sign Up'}
         </button>
       </form>
 
@@ -115,3 +106,5 @@ export const AuthScreen = () => {
     </div>
   );
 };
+
+export default AuthScreen;
